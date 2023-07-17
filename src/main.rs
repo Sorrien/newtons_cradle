@@ -5,23 +5,27 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy::winit::WinitWindows;
 use bevy::DefaultPlugins;
-use bevy_game::GamePlugin; // ToDo: Replace bevy_game with your new crate name.
+use bevy_rapier3d::prelude::*;
+use bevy_rapier3d::render::RapierDebugRenderPlugin;
+use newtons_cradle::GamePlugin;
 use std::io::Cursor;
 use winit::window::Icon;
 
 fn main() {
     App::new()
-        .insert_resource(Msaa::Off)
+        .insert_resource(Msaa::Sample8)
         .insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
-                title: "Bevy game".to_string(), // ToDo
+                title: "Newton's Cradle".to_string(), // ToDo
                 resolution: (800., 600.).into(),
                 canvas: Some("#bevy".to_owned()),
                 ..default()
             }),
             ..default()
         }))
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins(GamePlugin)
         .add_systems(Startup, set_window_icon)
         .run();

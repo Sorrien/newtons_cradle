@@ -2,6 +2,7 @@
 
 mod actions;
 mod audio;
+mod cradle;
 mod loading;
 mod menu;
 mod player;
@@ -16,6 +17,7 @@ use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use cradle::CradlePlugin;
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -40,7 +42,8 @@ impl Plugin for GamePlugin {
             MenuPlugin,
             ActionsPlugin,
             InternalAudioPlugin,
-            PlayerPlugin,
+            //PlayerPlugin,
+            CradlePlugin,
         ));
 
         #[cfg(debug_assertions)]

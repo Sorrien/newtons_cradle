@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_game::GamePlugin;
+use newtons_cradle::GamePlugin;
 
 #[bevy_main]
 fn main() {
