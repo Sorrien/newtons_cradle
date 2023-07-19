@@ -34,6 +34,7 @@ fn setup_menu(
     mut commands: Commands,
     font_assets: Res<FontAssets>,
     button_colors: Res<ButtonColors>,
+    mut state: ResMut<NextState<GameState>>,
 ) {
     commands.spawn(Camera3dBundle {
         transform: Transform::from_xyz(15.0, 5.0, 42.0)
@@ -69,6 +70,7 @@ fn setup_menu(
                 },
             ));
         });
+    state.set(GameState::Playing);
 }
 
 fn click_play_button(
