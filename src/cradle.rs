@@ -1,15 +1,20 @@
 use std::f32::consts::PI;
 
-use crate::GameState;
+use crate::{loading::AudioAssets, GameState};
 use bevy::{pbr::CascadeShadowConfigBuilder, prelude::*};
+use bevy_kira_audio::{Audio, AudioControl};
 use bevy_rapier3d::prelude::*;
 
 pub struct CradlePlugin;
 
-/// This plugin handles player related stuff like movement
+/// This plugin handles the newtons cradle setup
 impl Plugin for CradlePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Playing), setup_physics);
+        app.add_systems(OnEnter(GameState::Playing), setup_physics)
+            .add_systems(
+                Update,
+                handle_ball_impact_sounds.run_if(in_state(GameState::Playing)),
+            );
     }
 }
 
@@ -94,7 +99,10 @@ fn create_rope_joints(
                 coefficient: 1.0,
                 combine_rule: CoefficientCombineRule::Average,
             },
+            Velocity::default(),
+            BallSound::default(),
         ))
+        .insert(ActiveEvents::COLLISION_EVENTS)
         .with_children(|parent| {
             // NOTE: we want to attach multiple impulse joints to this entity, so
             //       we need to add the components to children of the entity. Otherwise
@@ -141,19 +149,7 @@ pub fn setup_physics(
             rotation: Quat::from_rotation_x(-PI / 4.),
             ..default()
         },
-        // The default cascade config is designed to handle large scenes.
-        // As this example has a much smaller world, we can tighten the shadow
-        // bounds for better visual quality.
-        /* cascade_shadow_config: CascadeShadowConfigBuilder {
-            first_cascade_far_bound: 4.0,
-            maximum_distance: 20.0,
-            ..default()
-        }
-        .into(), */
-        cascade_shadow_config: CascadeShadowConfigBuilder {
-            ..default()
-        }
-        .into(),
+        cascade_shadow_config: CascadeShadowConfigBuilder { ..default() }.into(),
         ..default()
     });
 
@@ -172,5 +168,41 @@ pub fn setup_physics(
             Vec3::new(i as f32 * offset + starting_point, 10.0, 0.0),
             false,
         );
+    }
+}
+
+#[derive(Component, Default)]
+pub struct BallSound {}
+
+fn handle_ball_impact_sounds(
+    mut collision_events: EventReader<CollisionEvent>,
+    audio_assets: Res<AudioAssets>,
+    audio: Res<Audio>,
+    velocities: Query<&Velocity>,
+) {
+    for event in collision_events.iter() {
+        let (entity_a, entity_b, _ongoing) = unpack_collision_event(event);
+
+        if let Ok(velocity_a) = velocities.get(entity_a) {
+            if let Ok(velocity_b) = velocities.get(entity_b) {
+                let rel_velocity = (velocity_a.linvel - velocity_b.linvel).abs();
+                let volume = (rel_velocity.length() / 10.0).clamp(0.0, 1.0) as f64;
+
+                if volume > 0.2 {
+                    println!("play ball sound! {}", volume);
+                    let _handle = audio
+                        .play(audio_assets.newton_impact.clone())
+                        .with_volume(volume)
+                        .handle();
+                }
+            }
+        }
+    }
+}
+
+fn unpack_collision_event(event: &CollisionEvent) -> (Entity, Entity, bool) {
+    match event {
+        CollisionEvent::Started(entity_a, entity_b, _kind) => (*entity_a, *entity_b, true),
+        CollisionEvent::Stopped(entity_a, entity_b, _kind) => (*entity_a, *entity_b, false),
     }
 }
