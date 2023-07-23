@@ -2,21 +2,22 @@
 
 mod audio;
 mod cradle;
+mod interaction;
 mod loading;
 mod menu;
-mod interaction;
+mod scene;
 
 use crate::audio::InternalAudioPlugin;
 use crate::cradle::CradlePlugin;
+use crate::interaction::InteractionPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
-use crate::interaction::InteractionPlugin;
 
 use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
-
+use scene::MyScenePlugin;
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -41,7 +42,8 @@ impl Plugin for GamePlugin {
             MenuPlugin,
             InternalAudioPlugin,
             CradlePlugin,
-            InteractionPlugin
+            InteractionPlugin,
+            MyScenePlugin,
         ));
 
         #[cfg(debug_assertions)]

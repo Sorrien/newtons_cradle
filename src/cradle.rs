@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
-use crate::{loading::AudioAssets, GameState};
-use bevy::{pbr::CascadeShadowConfigBuilder, prelude::*};
+use crate::{loading::AudioAssets, GameState, audio::BallSound};
+use bevy::{pbr::{CascadeShadowConfigBuilder, NotShadowCaster}, prelude::*};
 use bevy_kira_audio::{Audio, AudioControl};
 use bevy_rapier3d::prelude::*;
 
@@ -10,11 +10,7 @@ pub struct CradlePlugin;
 /// This plugin handles the newtons cradle setup
 impl Plugin for CradlePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Playing), setup_physics)
-            .add_systems(
-                Update,
-                handle_ball_impact_sounds.run_if(in_state(GameState::Playing)),
-            );
+        app.add_systems(OnEnter(GameState::Playing), setup_newtons_cradle);     
     }
 }
 
@@ -112,46 +108,13 @@ fn create_rope_joints(
         });
 }
 
-pub fn setup_physics(
+pub fn setup_newtons_cradle(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let starting_point = 5.0;
     let offset = 2.5;
-
-    // plane
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(shape::Plane::from_size(200.0).into()),
-        material: materials.add(StandardMaterial {
-            base_color: Color::SILVER,
-            perceptual_roughness: 1.0,
-            ..default()
-        }),
-        transform: Transform::from_xyz(10.0, -15.0, 0.0),
-        ..default()
-    });
-
-    // ambient light
-    commands.insert_resource(AmbientLight {
-        color: Color::WHITE,
-        brightness: 0.02,
-    });
-
-    // directional 'sun' light
-    commands.spawn(DirectionalLightBundle {
-        directional_light: DirectionalLight {
-            shadows_enabled: true,
-            ..default()
-        },
-        transform: Transform {
-            translation: Vec3::new(0.0, 2.0, 0.0),
-            rotation: Quat::from_rotation_x(-PI / 4.),
-            ..default()
-        },
-        cascade_shadow_config: CascadeShadowConfigBuilder { ..default() }.into(),
-        ..default()
-    });
 
     create_rope_joints(
         &mut commands,
@@ -168,41 +131,5 @@ pub fn setup_physics(
             Vec3::new(i as f32 * offset + starting_point, 10.0, 0.0),
             false,
         );
-    }
-}
-
-#[derive(Component, Default)]
-pub struct BallSound {}
-
-fn handle_ball_impact_sounds(
-    mut collision_events: EventReader<CollisionEvent>,
-    audio_assets: Res<AudioAssets>,
-    audio: Res<Audio>,
-    velocities: Query<&Velocity>,
-) {
-    for event in collision_events.iter() {
-        let (entity_a, entity_b, _ongoing) = unpack_collision_event(event);
-
-        if let Ok(velocity_a) = velocities.get(entity_a) {
-            if let Ok(velocity_b) = velocities.get(entity_b) {
-                let rel_velocity = (velocity_a.linvel - velocity_b.linvel).abs();
-                let volume = (rel_velocity.length() / 10.0).clamp(0.0, 1.0) as f64;
-
-                if volume > 0.2 {
-                    println!("play ball sound! {}", volume);
-                    let _handle = audio
-                        .play(audio_assets.newton_impact.clone())
-                        .with_volume(volume)
-                        .handle();
-                }
-            }
-        }
-    }
-}
-
-fn unpack_collision_event(event: &CollisionEvent) -> (Entity, Entity, bool) {
-    match event {
-        CollisionEvent::Started(entity_a, entity_b, _kind) => (*entity_a, *entity_b, true),
-        CollisionEvent::Stopped(entity_a, entity_b, _kind) => (*entity_a, *entity_b, false),
     }
 }

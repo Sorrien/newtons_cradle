@@ -36,19 +36,6 @@ fn setup_menu(
     button_colors: Res<ButtonColors>,
     mut state: ResMut<NextState<GameState>>,
 ) {
-    commands.spawn((
-        Camera3dBundle {
-            transform: Transform::from_xyz(15.0, 5.0, 42.0)
-                .looking_at(Vec3::new(13.0, 1.0, 1.0), Vec3::Y),
-            ..Default::default()
-        },
-    ));
-    /*     commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(15.0, -10.0, 20.0)
-            .looking_at(Vec3::new(13.0, -15.0, 1.0), Vec3::Y),
-        ..Default::default()
-    }); */
-
     commands
         .spawn(ButtonBundle {
             style: Style {
@@ -72,7 +59,7 @@ fn setup_menu(
                 },
             ));
         });
-    state.set(GameState::Playing);
+   // state.set(GameState::Playing);
 }
 
 fn click_play_button(
