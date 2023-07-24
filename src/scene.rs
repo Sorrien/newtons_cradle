@@ -1,12 +1,5 @@
-use crate::{audio::BallSound, loading::AudioAssets, GameState};
-use bevy::{
-    pbr::{CascadeShadowConfigBuilder, NotShadowCaster},
-    prelude::*,
-};
-use bevy_kira_audio::{Audio, AudioControl};
-use bevy_rapier3d::prelude::*;
-use std::f32::consts::PI;
-
+use crate::GameState;
+use bevy::{pbr::NotShadowCaster, prelude::*};
 pub struct MyScenePlugin;
 
 /// This plugin is responsible for the game menu (containing only one button...)

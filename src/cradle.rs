@@ -1,8 +1,5 @@
-use std::f32::consts::PI;
-
-use crate::{loading::AudioAssets, GameState, audio::BallSound};
-use bevy::{pbr::{CascadeShadowConfigBuilder, NotShadowCaster}, prelude::*};
-use bevy_kira_audio::{Audio, AudioControl};
+use crate::{GameState, audio::BallSound};
+use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
 pub struct CradlePlugin;
