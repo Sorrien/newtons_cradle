@@ -16,10 +16,10 @@ impl Plugin for MyScenePlugin {
 fn setup_camera(
     mut commands: Commands,
     mut state: ResMut<NextState<GameState>>,
-    textures: Res<TextureAssets>,
-    mut images: ResMut<Assets<Image>>,
+    //textures: Res<TextureAssets>,
+    //mut images: ResMut<Assets<Image>>,
 ) {
-    let image = images.get_mut(&textures.skybox_cubemap).unwrap();
+/*     let image = images.get_mut(&textures.skybox_cubemap).unwrap();
     // NOTE: PNGs do not have any metadata that could indicate they contain a cubemap texture,
     // so they appear as one texture. The following code reconfigures the texture as necessary.
     if image.texture_descriptor.array_layer_count() == 1 {
@@ -30,7 +30,7 @@ fn setup_camera(
             dimension: Some(TextureViewDimension::Cube),
             ..default()
         });
-    };
+    }; */
 
     commands.spawn((
         Camera3dBundle {
@@ -52,11 +52,11 @@ fn setup_camera(
                 Color::rgb(0.8, 0.844, 1.0), // atmospheric inscattering color (light gained due to scattering from the sun)
             ),  */
         },
-        EnvironmentMapLight {
+/*         EnvironmentMapLight {
             diffuse_map: textures.skybox_cubemap.clone(),
             specular_map: textures.skybox_cubemap.clone(),
-        },
-        Skybox(textures.skybox_cubemap.clone()),
+        }, */
+        //Skybox(textures.skybox_cubemap.clone()),
     ));
     state.set(GameState::Playing);
 }
@@ -68,7 +68,7 @@ fn setup(
 ) {
     // plane
     commands.spawn(PbrBundle {
-        mesh: meshes.add(shape::Plane::from_size(100.0).into()),
+        mesh: meshes.add(shape::Plane::from_size(200.0).into()),
         material: materials.add(StandardMaterial {
             base_color: Color::SILVER,
             perceptual_roughness: 1.0,

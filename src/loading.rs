@@ -41,8 +41,8 @@ pub struct AudioAssets {
 pub struct TextureAssets {
     #[asset(path = "textures/bevy.png")]
     pub texture_bevy: Handle<Image>,
-    #[asset(path = "environment_maps/sunny_vondelpark.png")]
-    pub skybox_cubemap: Handle<Image>,
+    //#[asset(path = "environment_maps/sunny_vondelpark.png")]
+    //pub skybox_cubemap: Handle<Image>,
 }
 
 #[derive(Resource, Default)]
