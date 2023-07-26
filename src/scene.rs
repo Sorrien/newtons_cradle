@@ -15,7 +15,6 @@ impl Plugin for MyScenePlugin {
 
 fn setup_camera(
     mut commands: Commands,
-    mut state: ResMut<NextState<GameState>>,
     textures: Res<TextureAssets>,
     mut images: ResMut<Assets<Image>>,
 ) {
@@ -58,7 +57,6 @@ fn setup_camera(
         },
         Skybox(textures.skybox_cubemap.clone()),
     ));
-    state.set(GameState::Playing);
 }
 
 fn setup(
