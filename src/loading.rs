@@ -10,12 +10,13 @@ pub struct LoadingPlugin;
 /// If interested, take a look at <https://bevy-cheatbook.github.io/features/assets.html>
 impl Plugin for LoadingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_loading_state(
-            LoadingState::new(GameState::Loading).continue_to_state(GameState::Menu),
-        )
-        .add_collection_to_loading_state::<_, FontAssets>(GameState::Loading)
-        .add_collection_to_loading_state::<_, AudioAssets>(GameState::Loading)
-        .add_collection_to_loading_state::<_, TextureAssets>(GameState::Loading);
+        app.insert_resource(CubemapTracking::default())
+            .add_loading_state(
+                LoadingState::new(GameState::Loading).continue_to_state(GameState::Menu),
+            )
+            .add_collection_to_loading_state::<_, FontAssets>(GameState::Loading)
+            .add_collection_to_loading_state::<_, AudioAssets>(GameState::Loading)
+            .add_collection_to_loading_state::<_, TextureAssets>(GameState::Loading);
     }
 }
 
@@ -40,4 +41,11 @@ pub struct AudioAssets {
 pub struct TextureAssets {
     #[asset(path = "textures/bevy.png")]
     pub texture_bevy: Handle<Image>,
+    #[asset(path = "environment_maps/sunny_vondelpark.png")]
+    pub skybox_cubemap: Handle<Image>,
+}
+
+#[derive(Resource, Default)]
+pub struct CubemapTracking {
+    pub is_loaded: bool,
 }

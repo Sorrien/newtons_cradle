@@ -56,7 +56,6 @@ fn handle_ball_impact_sounds(
             .play(audio_assets.newton_impact.clone())
             .with_volume(max_volume)
             .handle();
-        println!("playing sound at {} volume! at {} seconds", max_volume, ball_sound_meta.stopwatch.elapsed_secs());
         ball_sound_meta.stopwatch.reset();
     }
     ball_sound_meta.stopwatch.tick(time.delta());

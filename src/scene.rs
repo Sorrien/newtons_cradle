@@ -1,9 +1,11 @@
-use crate::GameState;
-use bevy::{pbr::NotShadowCaster, prelude::*};
+use crate::{loading::TextureAssets, GameState};
+use bevy::{
+    core_pipeline::Skybox,
+    prelude::*,
+    render::render_resource::{TextureViewDescriptor, TextureViewDimension},
+};
 pub struct MyScenePlugin;
 
-/// This plugin is responsible for the game menu (containing only one button...)
-/// The menu is only drawn during the State `GameState::Menu` and is removed when that state is exited
 impl Plugin for MyScenePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::Menu), setup_camera)
@@ -11,7 +13,25 @@ impl Plugin for MyScenePlugin {
     }
 }
 
-fn setup_camera(mut commands: Commands, mut state: ResMut<NextState<GameState>>) {
+fn setup_camera(
+    mut commands: Commands,
+    mut state: ResMut<NextState<GameState>>,
+    textures: Res<TextureAssets>,
+    mut images: ResMut<Assets<Image>>,
+) {
+    let image = images.get_mut(&textures.skybox_cubemap).unwrap();
+    // NOTE: PNGs do not have any metadata that could indicate they contain a cubemap texture,
+    // so they appear as one texture. The following code reconfigures the texture as necessary.
+    if image.texture_descriptor.array_layer_count() == 1 {
+        image.reinterpret_stacked_2d_as_array(
+            image.texture_descriptor.size.height / image.texture_descriptor.size.width,
+        );
+        image.texture_view_descriptor = Some(TextureViewDescriptor {
+            dimension: Some(TextureViewDimension::Cube),
+            ..default()
+        });
+    };
+
     commands.spawn((
         Camera3dBundle {
             transform: Transform::from_xyz(15.0, 5.0, 42.0)
@@ -32,6 +52,11 @@ fn setup_camera(mut commands: Commands, mut state: ResMut<NextState<GameState>>)
                 Color::rgb(0.8, 0.844, 1.0), // atmospheric inscattering color (light gained due to scattering from the sun)
             ),  */
         },
+        EnvironmentMapLight {
+            diffuse_map: textures.skybox_cubemap.clone(),
+            specular_map: textures.skybox_cubemap.clone(),
+        },
+        Skybox(textures.skybox_cubemap.clone()),
     ));
     state.set(GameState::Playing);
 }
@@ -43,7 +68,7 @@ fn setup(
 ) {
     // plane
     commands.spawn(PbrBundle {
-        mesh: meshes.add(shape::Plane::from_size(200.0).into()),
+        mesh: meshes.add(shape::Plane::from_size(100.0).into()),
         material: materials.add(StandardMaterial {
             base_color: Color::SILVER,
             perceptual_roughness: 1.0,
@@ -52,12 +77,6 @@ fn setup(
         transform: Transform::from_xyz(10.0, -15.0, 0.0),
         ..default()
     });
-
-    // ambient light
-    /*commands.insert_resource(AmbientLight {
-        color: Color::WHITE,
-        brightness: 0.02,
-    });*/
 
     // directional 'sun' light
     commands.spawn(DirectionalLightBundle {
@@ -77,22 +96,6 @@ fn setup(
         .into(), */
         ..default()
     });
-
-    // Sky
-    commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Box::new(100.0, 100.0, 100.0))),
-            material: materials.add(StandardMaterial {
-                base_color: Color::hex("888888").unwrap(),
-                unlit: true,
-                cull_mode: None,
-                ..default()
-            }),
-            transform: Transform::from_scale(Vec3::splat(20.0)),
-            ..default()
-        },
-        NotShadowCaster,
-    ));
 
     commands.spawn(PointLightBundle {
         point_light: PointLight {
