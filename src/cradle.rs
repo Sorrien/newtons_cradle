@@ -89,8 +89,8 @@ fn create_rope_joints(
             Damping::default(), //emulate air resistance
             ColliderMassProperties::Density(2.0),
             Restitution {
-                coefficient: 1.0,
-                combine_rule: CoefficientCombineRule::Average,
+                coefficient: 0.9,
+                combine_rule: CoefficientCombineRule::Min,
             },
             Velocity::default(),
             BallSound::default(),
@@ -111,7 +111,7 @@ pub fn setup_newtons_cradle(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let starting_point = 5.0;
-    let offset = 2.5;
+    let offset = 2.01;
 
     create_rope_joints(
         &mut commands,

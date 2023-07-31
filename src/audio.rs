@@ -51,7 +51,7 @@ fn handle_ball_impact_sounds(
         }
     }
 
-    if max_volume > 0.02 && ball_sound_meta.stopwatch.elapsed_secs() > 0.012 {
+    if max_volume > 0.21 && ball_sound_meta.stopwatch.elapsed_secs() > 0.02 {
         let _handle = audio
             .play(audio_assets.newton_impact.clone())
             .with_volume(max_volume)
